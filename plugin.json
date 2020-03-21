@@ -1,0 +1,23 @@
+{
+  "slug": "johnf-pushy",
+  "name": "johnf-pushy",
+  "version": "1.0.0",
+  "license": "proprietary",
+  "brand": "johnf",
+  "author": "johnf",
+  "authorEmail": "john@blamcast.net",
+  "authorUrl": "",
+  "pluginUrl": "",
+  "manualUrl": "",
+  "sourceUrl": "",
+  "donateUrl": "",
+  "changelogUrl": "",
+  "modules": [
+    {
+      "slug": "Pushy",
+      "name": "Pushy",
+      "description": "Use Ableton Push with VCV Rack!",
+      "tags": []
+    }
+  ]
+}
