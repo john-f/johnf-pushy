@@ -1,6 +1,7 @@
 #include "plugin.hpp"
 
 static const int KNOBS = 8;
+static const float STEPSIZE = 0.1f;
 //static const double U = 5.08f;
 
 struct Pushy : Module {
@@ -30,7 +31,12 @@ struct Pushy : Module {
         NUM_OUTPUTS
     };
     enum LightIds {
+        FREQ_LIGHT,
         NUM_LIGHTS
+    };
+    enum Modes {
+        AMPLITUDE,
+        FREQUENCY
     };
 
     Pushy() {
@@ -45,19 +51,61 @@ struct Pushy : Module {
         configParam(KNOB8_PARAM, 0.f, 10.f, 0.f, "");
     }
 
+    float phase = 0.f;
     int8_t values[128];
     int ccs[128];
+    float frequency[KNOBS];
+    float amplitude[KNOBS];
+    u_int8_t mode = AMPLITUDE;
+    u_int8_t prevMode;
 
     midi::InputQueue midiInput;
 
 	void process(const ProcessArgs& args) override {
+	    prevMode = mode;
+//        lights[FREQ_LIGHT].setBrightness(1.0f);
+
         midi::Message msg;
         // loop through all midi messages
         while (midiInput.shift(&msg)) {
             processMessage(msg);
         }
+
+
+        // Compute the frequency from the pitch parameter and input
+//        float pitch = params[PITCH_PARAM].getValue();
+//        pitch += inputs[PITCH_INPUT].getVoltage();
+//        pitch = clamp(pitch, -4.f, 4.f);
+//        // The default pitch is C4 = 261.6256f
+//        float freq = dsp::FREQ_C4 * std::pow(2.f, pitch);
+
+
         for (int i=0; i < KNOBS; i++) {
-            outputs[i].setVoltage(params[i].getValue());
+            if (frequency[i] == 0) {
+                outputs[i].setVoltage(amplitude[i]);
+            } else {
+                float freq = std::log(frequency[i] + 1);
+//                float freq = frequency[i];
+
+                // Accumulate the phase
+                phase += freq * args.sampleTime;
+                if (phase >= 0.5f)
+                    phase -= 1.f;
+
+                // Compute the sine output
+                float sine = std::sin(2.f * M_PI * phase);
+                // sine wave @ 0-10v
+                outputs[i].setVoltage(5.0f + sine * amplitude[i] / 2.0f);
+            }
+        }
+
+        // reset knob values on mode change
+        if (mode != prevMode) {
+            for (int i=0; i < KNOBS; i++) {
+                mode == AMPLITUDE ?
+                params[i].setValue(amplitude[i])
+                    : params[i].setValue(frequency[i]);
+            }
         }
 	}
 
@@ -65,6 +113,18 @@ struct Pushy : Module {
         switch (msg.getStatus()) {
             case 0xb: { // cc
                 processCC(msg);
+                break;
+            }
+            case 0x9: { // note on
+                if (msg.getNote() == 10) {
+                    if (msg.getValue() == 0) {
+                        mode = AMPLITUDE;
+                        lights[FREQ_LIGHT].setBrightness(0.0f);
+                    } else {
+                        mode = FREQUENCY;
+                        lights[FREQ_LIGHT].setBrightness(1.0f);
+                    }
+                }
                 break;
             }
         }
@@ -83,10 +143,29 @@ struct Pushy : Module {
 
         params[71 - cc].getValue();
 
-        float v = outputs[knob].getVoltage();
+//        float v = outputs[knob].getVoltage();
+        float v;
+        switch (mode) {
+            case AMPLITUDE: {
+                v = amplitude[knob];
+                v += value <= uint8_t(63) ? value * STEPSIZE : (128 - value) * -STEPSIZE;
+                v = clamp(v, 0.f, 10.f);
+                amplitude[knob] = v;
+                break;
+            }
+            case FREQUENCY: {
+                v = frequency[knob];
+                v += value <= uint8_t(63) ? value * STEPSIZE * 0.1 : (128 - value) * -STEPSIZE * 0.1;
+                v = clamp(v, 0.f, 10.f);
+                frequency[knob] = v;
+                break;
+            }
+        }
 
-        v += value <= uint8_t(63) ? value * 0.1f : (128 - value) * -0.1f;
-        v = clamp(v, 0.f, 10.f);
+        // account for knob acceleration values
+//        v += value <= uint8_t(63) ? value * STEPSIZE : (128 - value) * -STEPSIZE;
+//        v = clamp(v, 0.f, 10.f);
+
         params[knob].setValue(v);
 
     }
@@ -145,6 +224,8 @@ struct PushyWidget : ModuleWidget {
         addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(21.59, 67.54)), module, Pushy::OUT6_OUTPUT));
         addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(34.29, 67.54)), module, Pushy::OUT7_OUTPUT));
         addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(46.99, 67.54)), module, Pushy::OUT8_OUTPUT));
+
+        addChild(createLightCentered<SmallLight<GreenLight>>(mm2px(Vec(13.97+1.27, 54.84)), module, Pushy::FREQ_LIGHT));
 
         PushyMidiWidget* midiWidget = createWidget<PushyMidiWidget>(mm2px(Vec(3.41891, 128.5 - 28 - 2.54)));
         midiWidget->box.size = mm2px(Vec(49.08, 22.92));
