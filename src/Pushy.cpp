@@ -81,21 +81,23 @@ struct Pushy : Module {
             processMessage(msg);
         }
 
-        for (int i=0; i < KNOBS; i++) {
-            //float freq = 0.5f * powf(log10(0.5f * frequency[i] + 10.0f), 23.0f) - 0.5f;
+        for (int i = 0; i < KNOBS; i++) {
             float freq = powf(1.36f, frequency[i]) - 1;
-            //printf("log(%f) = %f\n", frequency[i], freq);
 
             // Accumulate the phase
             phase[i] += freq * args.sampleTime;
-            if (phase[i] >= 0.5f)
-                phase[i] -= 1.f;
+            if (phase[i] >= 2.f)
+                phase[i] -= 2.f;
 
             // Compute the sine output
-            float sine = sin(2.f * M_PI * phase[i]);
-            // sine wave @ 0-10v
+            float x = phase[i];
+            float y = abs((2 * x - 1) - 1) - 1;
+            //if (i == 0) printf("phase %f, y %f\n", x, y);
+
+            // todo: store when knob is turned, don't recalculate
             float amp = powf(1.27098f, amplitude[i]) - 1;
-            outputs[i].setVoltage(5.0f + sine * amp / 2.0f);
+            // output 0-10v, centered on +5v
+            outputs[i].setVoltage(5.0f + y * amp / 2.0f);
         }
 
 
