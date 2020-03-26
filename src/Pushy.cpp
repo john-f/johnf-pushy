@@ -49,20 +49,30 @@ struct Pushy : Module {
         configParam(KNOB6_PARAM, 0.f, 10.f, 0.f, "");
         configParam(KNOB7_PARAM, 0.f, 10.f, 0.f, "");
         configParam(KNOB8_PARAM, 0.f, 10.f, 0.f, "");
+        onReset();
     }
 
-    float phase = 0.f;
     int8_t values[128];
     int ccs[128];
+    float phase[KNOBS];
     float frequency[KNOBS];
     float amplitude[KNOBS];
     u_int8_t mode = AMPLITUDE;
-    u_int8_t prevMode;
+    u_int8_t prevMode = FREQUENCY;
 
     midi::InputQueue midiInput;
 
-	void process(const ProcessArgs& args) override {
-	    prevMode = mode;
+    void onReset() override {
+        for (int i = 0; i < KNOBS; i++) {
+            phase[i] = 0;
+            frequency[i] = 0;
+            amplitude[i] = 0;
+        }
+        midiInput.reset();
+    }
+
+    void process(const ProcessArgs &args) override {
+        prevMode = mode;
 //        lights[FREQ_LIGHT].setBrightness(1.0f);
 
         midi::Message msg;
@@ -71,43 +81,33 @@ struct Pushy : Module {
             processMessage(msg);
         }
 
-
-        // Compute the frequency from the pitch parameter and input
-//        float pitch = params[PITCH_PARAM].getValue();
-//        pitch += inputs[PITCH_INPUT].getVoltage();
-//        pitch = clamp(pitch, -4.f, 4.f);
-//        // The default pitch is C4 = 261.6256f
-//        float freq = dsp::FREQ_C4 * std::pow(2.f, pitch);
-
-
         for (int i=0; i < KNOBS; i++) {
-            if (frequency[i] == 0) {
-                outputs[i].setVoltage(amplitude[i]);
-            } else {
-                float freq = std::log(frequency[i] + 1);
-//                float freq = frequency[i];
+            //float freq = 0.5f * powf(log10(0.5f * frequency[i] + 10.0f), 23.0f) - 0.5f;
+            float freq = powf(1.36f, frequency[i]) - 1;
+            //printf("log(%f) = %f\n", frequency[i], freq);
 
-                // Accumulate the phase
-                phase += freq * args.sampleTime;
-                if (phase >= 0.5f)
-                    phase -= 1.f;
+            // Accumulate the phase
+            phase[i] += freq * args.sampleTime;
+            if (phase[i] >= 0.5f)
+                phase[i] -= 1.f;
 
-                // Compute the sine output
-                float sine = std::sin(2.f * M_PI * phase);
-                // sine wave @ 0-10v
-                outputs[i].setVoltage(5.0f + sine * amplitude[i] / 2.0f);
-            }
+            // Compute the sine output
+            float sine = sin(2.f * M_PI * phase[i]);
+            // sine wave @ 0-10v
+            float amp = powf(1.27098f, amplitude[i]) - 1;
+            outputs[i].setVoltage(5.0f + sine * amp / 2.0f);
         }
+
 
         // reset knob values on mode change
         if (mode != prevMode) {
-            for (int i=0; i < KNOBS; i++) {
+            for (int i = 0; i < KNOBS; i++) {
                 mode == AMPLITUDE ?
                 params[i].setValue(amplitude[i])
-                    : params[i].setValue(frequency[i]);
+                                  : params[i].setValue(frequency[i]);
             }
         }
-	}
+    }
 
     void processMessage(midi::Message msg) {
         switch (msg.getStatus()) {
@@ -155,7 +155,7 @@ struct Pushy : Module {
             }
             case FREQUENCY: {
                 v = frequency[knob];
-                v += value <= uint8_t(63) ? value * STEPSIZE * 0.1 : (128 - value) * -STEPSIZE * 0.1;
+                v += value <= uint8_t(63) ? value * STEPSIZE * 0.5f : (128 - value) * -STEPSIZE * 0.5f;
                 v = clamp(v, 0.f, 10.f);
                 frequency[knob] = v;
                 break;
@@ -169,11 +169,23 @@ struct Pushy : Module {
         params[knob].setValue(v);
 
     }
+
+    json_t *dataToJson() override {
+        json_t *rootJ = json_object();
+        json_object_set_new(rootJ, "midi", midiInput.toJson());
+        return rootJ;
+    }
+
+    void dataFromJson(json_t *rootJ) override {
+        json_t *midiJ = json_object_get(rootJ, "midi");
+        if (midiJ) midiInput.fromJson(midiJ);
+    }
+
 };
 
 
 struct PushyMidiWidget : MidiWidget {
-    void setMidiPort(midi::Port* port) {
+    void setMidiPort(midi::Port *port) {
         MidiWidget::setMidiPort(port);
 
         driverChoice->textOffset = Vec(6.f, 14.7f);
@@ -196,16 +208,15 @@ struct PushyMidiWidget : MidiWidget {
     }
 };
 
-
 struct PushyWidget : ModuleWidget {
-	PushyWidget(Pushy* module) {
-		setModule(module);
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Pushy2.svg")));
+    PushyWidget(Pushy *module) {
+        setModule(module);
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Pushy2.svg")));
 
-		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+        addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
+        addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+        addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+        addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(8.89, 29.44)), module, Pushy::KNOB1_PARAM));
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(21.59, 29.44)), module, Pushy::KNOB2_PARAM));
@@ -225,14 +236,15 @@ struct PushyWidget : ModuleWidget {
         addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(34.29, 67.54)), module, Pushy::OUT7_OUTPUT));
         addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(46.99, 67.54)), module, Pushy::OUT8_OUTPUT));
 
-        addChild(createLightCentered<SmallLight<GreenLight>>(mm2px(Vec(13.97+1.27, 54.84)), module, Pushy::FREQ_LIGHT));
+        addChild(createLightCentered<SmallLight<GreenLight>>(mm2px(Vec(13.97 + 1.27, 54.84)), module,
+                                                             Pushy::FREQ_LIGHT));
 
-        PushyMidiWidget* midiWidget = createWidget<PushyMidiWidget>(mm2px(Vec(3.41891, 128.5 - 28 - 2.54)));
+        PushyMidiWidget *midiWidget = createWidget<PushyMidiWidget>(mm2px(Vec(3.41891, 128.5 - 28 - 2.54)));
         midiWidget->box.size = mm2px(Vec(49.08, 22.92));
 
         midiWidget->setMidiPort(module ? &module->midiInput : NULL);
         addChild(midiWidget);
-	}
+    }
 };
 
-Model* modelPushy = createModel<Pushy, PushyWidget>("Pushy");
+Model *modelPushy = createModel<Pushy, PushyWidget>("Pushy");
