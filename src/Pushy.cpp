@@ -36,7 +36,8 @@ struct Pushy : Module {
     };
     enum Modes {
         AMPLITUDE,
-        FREQUENCY
+        FREQUENCY,
+        SHAPE,
     };
 
     Pushy() {
@@ -57,6 +58,7 @@ struct Pushy : Module {
     float phase[KNOBS];
     float frequency[KNOBS];
     float amplitude[KNOBS];
+    float shape[KNOBS];
     u_int8_t mode = AMPLITUDE;
     u_int8_t prevMode = FREQUENCY;
 
@@ -67,6 +69,7 @@ struct Pushy : Module {
             phase[i] = 0;
             frequency[i] = 0;
             amplitude[i] = 0;
+            shape[i] = 0;
         }
         midiInput.reset();
     }
@@ -90,8 +93,73 @@ struct Pushy : Module {
                 phase[i] -= 2.f;
 
             // Compute the sine output
-            float x = phase[i];
-            float y = abs((2 * x - 1) - 1) - 1;
+            float x = 2 - phase[i];
+
+            // todo: store when knob is turned
+            int algo = int(shape[i] / 2);
+            float mix = fmod(shape[i] / 2, 1);
+            float invertMix = 1;
+            float algo1 = 0;
+            float algo2 = 0;
+            float n = 0;
+
+            //if (i == 0) printf("algo %d, ratio %f, mode %d\n", algo, mix, mode);
+
+            switch (algo) {
+                case 0:
+                    // linear sweep
+                    algo1 = fmax(
+                            (x / -mix) + 1,
+                            ((-x + 4 * mix - 2) / (mix - 1)) - 3
+                    );
+                    //algo1 = fmax(
+                    //        (-x / (1 - mix)) + 1,
+                    //        (( x + 4 * mix - 2) / mix) - 3
+                    //);
+                    break;
+                case 1:
+                    // linear sweep to sine
+                    invertMix = 1 - mix;
+                    // linear
+                    n = x * mix / 2;
+                    algo1 = fmax(
+                            (-x / (1 - n)) + 1,
+                            ((x + 4 * n - 2) / n) - 3
+                    );
+                    // sine
+                    algo2 = (4 * (x - 1) * (abs(x - 1) - 1));
+                    break;
+                case 2:
+                    // sine to rounded
+                    invertMix = 1 - mix;
+                    // sine
+                    algo1 = (4 * (x - 1) * (abs(x - 1) - 1));
+                    // square
+                    algo2 = cbrt(4 * (x - 1) * (abs(x - 1) - 1));
+                    break;
+                case 3:
+                    // rounded to square
+                    invertMix = 1 - mix;
+                    // rounded
+                    algo1 = cbrt(4 * (x - 1) * (abs(x - 1) - 1));
+                    // square
+                    algo2 = 2 * floor(fmod(x + 1, 2)) - 1;
+                    break;
+                case 4:
+                    // square to pulse
+                    algo1 = (-(x * x) + (3 * mix + 1)) > 0 ? 1 : -1;
+                    break;
+                case 5:
+                    // always high
+                    algo1 = 1;
+                    break;
+            }
+            float y = invertMix * algo1 + mix * algo2;
+
+            //switch (int(shape[i])) {
+            //    printf("%d",int);
+            //}
+            //float y = abs((2 * x - 1) - 1) - 1;
             //if (i == 0) printf("phase %f, y %f\n", x, y);
 
             // todo: store when knob is turned, don't recalculate
@@ -100,13 +168,20 @@ struct Pushy : Module {
             outputs[i].setVoltage(5.0f + y * amp / 2.0f);
         }
 
-
         // reset knob values on mode change
         if (mode != prevMode) {
             for (int i = 0; i < KNOBS; i++) {
-                mode == AMPLITUDE ?
-                params[i].setValue(amplitude[i])
-                                  : params[i].setValue(frequency[i]);
+                switch (mode) {
+                    case AMPLITUDE:
+                        params[i].setValue(amplitude[i]);
+                        break;
+                    case FREQUENCY:
+                        params[i].setValue(frequency[i]);
+                        break;
+                    case SHAPE:
+                        params[i].setValue(shape[i]);
+                        break;
+                }
             }
         }
     }
@@ -126,7 +201,16 @@ struct Pushy : Module {
                         mode = FREQUENCY;
                         lights[FREQ_LIGHT].setBrightness(1.0f);
                     }
+                } else if (msg.getNote() == 9) {
+                    if (msg.getValue() == 0) {
+                        mode = AMPLITUDE;
+                        lights[FREQ_LIGHT].setBrightness(0.0f);
+                    } else {
+                        mode = SHAPE;
+                        lights[FREQ_LIGHT].setBrightness(0.5f);
+                    }
                 }
+
                 break;
             }
         }
@@ -160,6 +244,13 @@ struct Pushy : Module {
                 v += value <= uint8_t(63) ? value * STEPSIZE * 0.5f : (128 - value) * -STEPSIZE * 0.5f;
                 v = clamp(v, 0.f, 10.f);
                 frequency[knob] = v;
+                break;
+            }
+            case SHAPE: {
+                v = shape[knob];
+                v += value <= uint8_t(63) ? value * STEPSIZE * 0.5f : (128 - value) * -STEPSIZE * 0.5f;
+                v = clamp(v, 0.f, 10.f);
+                shape[knob] = v;
                 break;
             }
         }
