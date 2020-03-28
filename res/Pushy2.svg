@@ -7,6 +7,7 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="55.880001mm"
@@ -24,10 +25,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2"
-     inkscape:cx="69.589387"
-     inkscape:cy="365.69369"
+     inkscape:cx="90.597782"
+     inkscape:cy="467.94758"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      showgrid="true"
      objecttolerance="10000"
      inkscape:measure-start="0,0"
@@ -62,7 +63,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -86,44 +87,49 @@
       <path
          d="m 11.257278,183.0311 h 2.296583 l 0.47625,-2.286 h 1.566333 c 1.989667,0 3.27025,-1.31234 3.27025,-2.83634 0,-1.67216 -0.899583,-2.43416 -2.286,-2.43416 h -3.746499 z m 3.481916,-5.61975 h 0.79375 c 0.486834,0 1.005417,0.0952 1.005417,0.67733 0,0.508 -0.306917,0.85725 -1.23825,0.85725 h -0.889 z"
          style="font-style:italic;font-variant:normal;font-weight:900;font-stretch:normal;font-size:10.58333302px;font-family:'Helvetica Neue LT Std';-inkscape-font-specification:'Helvetica Neue LT Std, Heavy Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
-         id="path972" />
+         id="path972"
+         inkscape:connector-curvature="0" />
       <path
          d="m 25.450851,177.53835 h -2.0955 l -0.47625,2.23308 c -0.169334,0.6985 -0.211667,1.72508 -1.153584,1.72508 -0.306916,0 -0.60325,-0.17991 -0.60325,-0.48683 0,-0.15875 0.02117,-0.3175 0.08467,-0.60325 l 0.613833,-2.86808 h -2.0955 c -0.635,3.02683 -0.814916,3.69358 -0.814916,4.16983 0,1.04775 0.79375,1.4605 1.74625,1.4605 0.709083,0 1.312333,-0.29633 1.767416,-0.83608 h 0.02117 l -0.169333,0.6985 h 2.032 z"
          style="font-style:italic;font-variant:normal;font-weight:900;font-stretch:normal;font-size:10.58333302px;font-family:'Helvetica Neue LT Std';-inkscape-font-specification:'Helvetica Neue LT Std, Heavy Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
-         id="path974" />
+         id="path974"
+         inkscape:connector-curvature="0" />
       <path
          d="m 25.529564,181.23193 c -0.04233,1.651 1.42875,1.93675 2.614083,1.93675 1.693334,0 2.783417,-0.77258 2.783417,-2.04258 0,-1.15359 -0.772583,-1.49225 -2.328333,-1.70392 -0.275167,-0.0317 -0.47625,-0.11642 -0.47625,-0.41275 0,-0.32808 0.306916,-0.4445 0.592666,-0.4445 0.169334,0 0.34925,0.0317 0.486834,0.13758 0.116416,0.0847 0.169333,0.22225 0.148166,0.43392 h 1.87325 c 0.116417,-1.48167 -1.30175,-1.73567 -2.465916,-1.73567 -1.322917,0 -2.7305,0.43392 -2.7305,2.01084 0,1.19591 1.121833,1.35466 1.49225,1.41816 0.783166,0.13759 1.312333,0.16934 1.312333,0.56092 0,0.127 -0.07408,0.48683 -0.635,0.48683 -0.232833,0 -0.423333,-0.0423 -0.550333,-0.13758 -0.127,-0.11642 -0.1905,-0.28575 -0.1905,-0.508 z"
          style="font-style:italic;font-variant:normal;font-weight:900;font-stretch:normal;font-size:10.58333302px;font-family:'Helvetica Neue LT Std';-inkscape-font-specification:'Helvetica Neue LT Std, Heavy Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
-         id="path976" />
+         id="path976"
+         inkscape:connector-curvature="0" />
       <path
          d="m 31.39951,183.0311 h 2.0955 l 0.613833,-2.91042 c 0.127,-0.5715 0.34925,-1.04775 1.016,-1.04775 0.338667,0 0.592667,0.17992 0.592667,0.52917 0,0.22225 -0.105834,0.59266 -0.169334,0.91016 l -0.53975,2.51884 h 2.0955 l 0.66675,-3.10092 c 0.08467,-0.40217 0.148167,-0.80433 0.148167,-1.04775 0,-1.0795 -0.8255,-1.48167 -1.788583,-1.48167 -0.582084,0 -1.248834,0.29634 -1.629834,0.83609 h -0.02117 l 0.5715,-2.76225 h -2.0955 z"
          style="font-style:italic;font-variant:normal;font-weight:900;font-stretch:normal;font-size:10.58333302px;font-family:'Helvetica Neue LT Std';-inkscape-font-specification:'Helvetica Neue LT Std, Heavy Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
-         id="path978" />
+         id="path978"
+         inkscape:connector-curvature="0" />
       <path
          d="m 44.622724,177.53835 h -2.180167 l -1.407583,3.29141 h -0.02117 l -0.359833,-3.29141 h -2.116667 l 0.973667,5.04825 c 0,0.52916 -0.3175,0.55033 -0.762,0.55033 -0.169333,0 -0.34925,-0.0212 -0.518583,-0.0318 l -0.3175,1.651 c 0.328083,0.0317 0.645583,0.0529 0.973666,0.0529 1.894417,0 2.2225,-0.52917 2.688167,-1.43934 z"
          style="font-style:italic;font-variant:normal;font-weight:900;font-stretch:normal;font-size:10.58333302px;font-family:'Helvetica Neue LT Std';-inkscape-font-specification:'Helvetica Neue LT Std, Heavy Italic';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;stroke-width:0.26458332"
-         id="path980" />
+         id="path980"
+         inkscape:connector-curvature="0" />
     </g>
     <rect
        style="opacity:1;fill:#0b1004;fill-opacity:1;stroke-width:0.26458332"
        id="rect943"
        width="10.16"
        height="10.16"
-       x="3.8099999"
-       y="218.25999"
+       x="3.8100026"
+       y="239.85001"
        ry="1.2700027" />
     <rect
        ry="1.2700027"
-       y="218.25999"
-       x="16.51"
+       y="239.85001"
+       x="16.510002"
        height="10.16"
        width="10.16"
        id="rect958"
        style="fill:#0b1004;fill-opacity:1;stroke-width:0.26458332" />
     <rect
        ry="1.2700027"
-       y="218.25999"
-       x="29.209999"
+       y="239.85001"
+       x="29.210001"
        height="10.16"
        width="10.16"
        id="rect960"
@@ -133,41 +139,38 @@
        id="rect962"
        width="10.16"
        height="10.16"
-       x="41.91"
-       y="218.25999"
+       x="41.910004"
+       y="239.85001"
        ry="1.2700027" />
-    <rect
-       ry="1.2700027"
-       y="230.95999"
-       x="3.8100004"
-       height="10.16"
-       width="10.16"
-       id="rect964"
-       style="fill:#0b1004;fill-opacity:1;stroke-width:0.26458332" />
-    <rect
-       style="fill:#0b1004;fill-opacity:1;stroke-width:0.26458332"
-       id="rect966"
-       width="10.16"
-       height="10.16"
-       x="16.51"
-       y="230.95999"
-       ry="1.2700027" />
-    <rect
-       style="fill:#0b1004;fill-opacity:1;stroke-width:0.26458332"
-       id="rect968"
-       width="10.16"
-       height="10.16"
-       x="29.209999"
-       y="230.95999"
-       ry="1.2700027" />
-    <rect
-       ry="1.2700027"
-       y="230.95999"
-       x="41.91"
-       height="10.16"
-       width="10.16"
-       id="rect970"
-       style="fill:#0b1004;fill-opacity:1;stroke-width:0.26458332" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.24107514;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 15.240002,189.05001 V 250.01"
+       id="path869"
+       inkscape:connector-curvature="0" />
+    <path
+       sodipodi:type="inkscape:offset"
+       inkscape:radius="0"
+       inkscape:original="M 27.939453 189.05078 L 27.939453 250.00977 L 27.939453 189.05078 z "
+       xlink:href="#path880"
+       style="fill:none;stroke:#000000;stroke-width:0.26499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path882"
+       inkscape:href="#path880"
+       d="m 27.939453,189.05078 v 60.95899 z" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path880"
+       d="M 27.940009,189.05001 V 250.01"
+       style="fill:none;stroke:#000000;stroke-width:0.24107514;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       d="m 27.939453,189.05078 v 60.95899 z"
+       inkscape:href="#path880"
+       id="path884"
+       style="fill:none;stroke:#000000;stroke-width:0.26499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       xlink:href="#path880"
+       inkscape:original="M 27.939453 189.05078 L 27.939453 250.00977 L 27.939453 189.05078 z "
+       inkscape:radius="0"
+       sodipodi:type="inkscape:offset"
+       transform="translate(12.7)" />
   </g>
   <g
      style="display:none;opacity:1"
@@ -177,43 +180,36 @@
      sodipodi:insensitive="true">
     <circle
        r="5.0800004"
-       cy="54.839996"
-       cx="8.8899994"
+       cy="76.43"
+       cx="8.8900013"
        id="circle4604"
        style="fill:#0000ff;fill-opacity:1;stroke-width:0.13229167"
        inkscape:label="out1" />
     <circle
-       inkscape:label="out5"
-       style="fill:#0000ff;fill-opacity:1;stroke-width:0.13229167"
-       id="circle4626"
-       cx="8.8899994"
-       cy="67.540001"
-       r="5.0800004" />
-    <circle
        r="5.0800004"
-       cy="29.439997"
-       cx="21.59"
+       cy="25.630001"
+       cx="21.590002"
        id="circle842"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        inkscape:label="knob2" />
     <circle
        r="5.0800004"
-       cy="42.139999"
-       cx="21.59"
+       cy="38.330006"
+       cx="21.590002"
        id="circle844"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        inkscape:label="knob6" />
     <circle
        r="5.0800004"
-       cy="29.439995"
-       cx="34.289997"
+       cy="25.629999"
+       cx="34.290001"
        id="circle846"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        inkscape:label="knob3" />
     <circle
        r="5.0800004"
-       cy="42.139996"
-       cx="34.289997"
+       cy="38.330002"
+       cx="34.290001"
        id="circle848"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        inkscape:label="knob7" />
@@ -221,71 +217,134 @@
        inkscape:label="knob4"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        id="circle850"
-       cx="46.989998"
-       cy="29.439995"
+       cx="46.990002"
+       cy="25.629999"
        r="5.0800004" />
     <circle
        inkscape:label="knob8"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        id="circle852"
-       cx="46.989998"
-       cy="42.139996"
+       cx="46.990002"
+       cy="38.330002"
        r="5.0800004" />
     <circle
        inkscape:label="out2"
        style="fill:#0000ff;fill-opacity:1;stroke-width:0.13229167"
        id="circle854"
-       cx="21.59"
-       cy="54.839996"
+       cx="21.590002"
+       cy="76.43"
        r="5.0800004" />
-    <circle
-       r="5.0800004"
-       cy="67.540001"
-       cx="21.59"
-       id="circle856"
-       style="fill:#0000ff;fill-opacity:1;stroke-width:0.13229167"
-       inkscape:label="out6" />
     <circle
        inkscape:label="out3"
        style="fill:#0000ff;fill-opacity:1;stroke-width:0.13229167"
        id="circle858"
-       cx="34.290001"
-       cy="54.839993"
+       cx="34.290005"
+       cy="76.43"
        r="5.0800004" />
     <circle
        r="5.0800004"
-       cy="67.540001"
-       cx="34.290001"
-       id="circle860"
-       style="fill:#0000ff;fill-opacity:1;stroke-width:0.13229167"
-       inkscape:label="out7" />
-    <circle
-       r="5.0800004"
-       cy="54.839993"
-       cx="46.990002"
+       cy="76.43"
+       cx="46.990005"
        id="circle862"
        style="fill:#0000ff;fill-opacity:1;stroke-width:0.13229167"
        inkscape:label="out4" />
     <circle
-       inkscape:label="out8"
-       style="fill:#0000ff;fill-opacity:1;stroke-width:0.13229167"
-       id="circle864"
-       cx="46.990002"
-       cy="67.540001"
-       r="5.0800004" />
-    <circle
        inkscape:label="knob5"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        id="circle904"
-       cx="8.8899994"
-       cy="42.139999"
+       cx="8.8900013"
+       cy="38.330006"
        r="5.0800004" />
     <circle
        inkscape:label="knob1"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        id="circle906"
-       cx="8.8899994"
-       cy="29.439995"
+       cx="8.8900013"
+       cy="25.629999"
        r="5.0800004" />
+    <circle
+       inkscape:label="knob10"
+       style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
+       id="circle853"
+       cx="21.590006"
+       cy="51.030006"
+       r="5.0800004" />
+    <circle
+       inkscape:label="knob14"
+       style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
+       id="circle855"
+       cx="21.590006"
+       cy="63.730007"
+       r="5.0800004" />
+    <circle
+       inkscape:label="knob11"
+       style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
+       id="circle857"
+       cx="34.290005"
+       cy="51.030006"
+       r="5.0800004" />
+    <circle
+       inkscape:label="knob15"
+       style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
+       id="circle859"
+       cx="34.290005"
+       cy="63.730007"
+       r="5.0800004" />
+    <circle
+       r="5.0800004"
+       cy="51.030006"
+       cx="46.990005"
+       id="circle861"
+       style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
+       inkscape:label="knob12" />
+    <circle
+       r="5.0800004"
+       cy="63.730007"
+       cx="46.990005"
+       id="circle863"
+       style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
+       inkscape:label="knob16" />
+    <circle
+       r="5.0800004"
+       cy="63.730007"
+       cx="8.8900042"
+       id="circle865"
+       style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
+       inkscape:label="knob13" />
+    <circle
+       r="5.0800004"
+       cy="51.030006"
+       cx="8.8900042"
+       id="circle867"
+       style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
+       inkscape:label="knob9" />
+    <circle
+       r="1.27"
+       cy="18.01"
+       cx="8.8900003"
+       id="circle886"
+       style="fill:#ff00ff;fill-opacity:0.94117647;stroke-width:0.03307291"
+       inkscape:label="light1" />
+    <circle
+       inkscape:label="light2"
+       style="fill:#ff00ff;fill-opacity:0.94117647;stroke-width:0.03307291"
+       id="circle888"
+       cx="21.59"
+       cy="18.01"
+       r="1.27" />
+    <circle
+       r="1.27"
+       cy="18.01"
+       cx="34.290001"
+       id="circle890"
+       style="fill:#ff00ff;fill-opacity:0.94117647;stroke-width:0.03307291"
+       inkscape:label="light3" />
+    <circle
+       inkscape:label="light4"
+       style="fill:#ff00ff;fill-opacity:0.94117647;stroke-width:0.03307291"
+       id="circle892"
+       cx="46.990002"
+       cy="18.01"
+       r="1.27" />
   </g>
 </svg>
