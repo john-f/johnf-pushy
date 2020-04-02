@@ -1,9 +1,3 @@
-// ideas:
-// only send changes to touched knobs (1-4)
-// 5-8 become control knobs
-// keep last touched knobs active
-// can control multiple knobs
-// only clear active knobs when starting a new touch
 /*
  *  v v v v    base voltage
  *  a a a a    amplitude of osc
@@ -11,8 +5,6 @@
  *  s s s s    shape of osc
  *  o o o o    outputs
  */
-// make sine default shape
-// set other knobs defaults
 
 #include "plugin.hpp"
 
@@ -67,22 +59,26 @@ struct Pushy : Module {
 
     Pushy() {
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam(KNOB1_PARAM, 0.f, 10.f, 0.f, "");
-        configParam(KNOB2_PARAM, 0.f, 10.f, 0.f, "");
-        configParam(KNOB3_PARAM, 0.f, 10.f, 0.f, "");
-        configParam(KNOB4_PARAM, 0.f, 10.f, 0.f, "");
-        configParam(KNOB5_PARAM, 0.f, 10.f, 0.f, "");
-        configParam(KNOB6_PARAM, 0.f, 10.f, 0.f, "");
-        configParam(KNOB7_PARAM, 0.f, 10.f, 0.f, "");
-        configParam(KNOB8_PARAM, 0.f, 10.f, 0.f, "");
-        configParam(KNOB9_PARAM, 0.f, 10.f, 0.f, "");
-        configParam(KNOB10_PARAM, 0.f, 10.f, 0.f, "");
-        configParam(KNOB11_PARAM, 0.f, 10.f, 0.f, "");
-        configParam(KNOB12_PARAM, 0.f, 10.f, 0.f, "");
-        configParam(KNOB13_PARAM, 0.f, 10.f, 0.f, "");
-        configParam(KNOB14_PARAM, 0.f, 10.f, 0.f, "");
-        configParam(KNOB15_PARAM, 0.f, 10.f, 0.f, "");
-        configParam(KNOB16_PARAM, 0.f, 10.f, 0.f, "");
+        // base
+        configParam(KNOB1_PARAM, 0.f, 10.f, 5.f, "");
+        configParam(KNOB2_PARAM, 0.f, 10.f, 5.f, "");
+        configParam(KNOB3_PARAM, 0.f, 10.f, 5.f, "");
+        configParam(KNOB4_PARAM, 0.f, 10.f, 5.f, "");
+        // amp
+        configParam(KNOB5_PARAM, 0.f, 10.f, 5.f, "");
+        configParam(KNOB6_PARAM, 0.f, 10.f, 5.f, "");
+        configParam(KNOB7_PARAM, 0.f, 10.f, 5.f, "");
+        configParam(KNOB8_PARAM, 0.f, 10.f, 5.f, "");
+        // freq
+        configParam(KNOB9_PARAM, 0.f, 10.f, 2.f, "");
+        configParam(KNOB10_PARAM, 0.f, 10.f, 2.f, "");
+        configParam(KNOB11_PARAM, 0.f, 10.f, 2.f, "");
+        configParam(KNOB12_PARAM, 0.f, 10.f, 2.f, "");
+        // shape
+        configParam(KNOB13_PARAM, 0.f, 10.f, 4.f, "");
+        configParam(KNOB14_PARAM, 0.f, 10.f, 4.f, "");
+        configParam(KNOB15_PARAM, 0.f, 10.f, 4.f, "");
+        configParam(KNOB16_PARAM, 0.f, 10.f, 4.f, "");
         onReset();
     }
 
@@ -117,8 +113,6 @@ struct Pushy : Module {
     }
 
     void process(const ProcessArgs &args) override {
-//        lights[FREQ_LIGHT].setBrightness(1.0f);
-
         midi::Message msg;
         // loop through all midi messages
         while (midiInput.shift(&msg)) {
@@ -187,13 +181,14 @@ struct Pushy : Module {
                     // rounded
                     algo1 = cbrt(4 * (x - 1) * (abs(x - 1) - 1));
                     // square
-                    algo2 = 2 * floor(fmod(x + 1, 2)) - 1;
+                    algo2 = 2 * floor(fmod(x + 1, 2.f)) - 1;
                     break;
                 case 4:
                     // square to pulse
                     algo1 = (-(x * x) + (3 * mix + 1)) > 0 ? 1 : -1;
                     break;
                 case 5:
+                default:
                     // always high
                     algo1 = 1;
                     break;
@@ -201,29 +196,20 @@ struct Pushy : Module {
             float y = invertMix * algo1 + mix * algo2;
 
             // todo: store when knob is turned, don't recalculate
-            float amp = powf(1.27098f, values[i][AMPLITUDE]) - 1;
+            float amp;
+            // attenuverter
+            if (values[i][AMPLITUDE] < 5) {
+                amp = -(powf(1.27098f, 2 * (5 - values[i][AMPLITUDE])) - 1);
+            } else {
+                amp = powf(1.27098f, 2 * (values[i][AMPLITUDE] - 5)) - 1;
+            }
             // output 0-10v, centered on +5v
-            float osc = 5.0f + y * amp / 2.0f;
+            float osc = 5 + y * amp / 2;
+            float v = values[i][BASE] + osc - 5;
+            v = clamp(v, 0.0f, 10.0f);
 
-            outputs[i].setVoltage(values[i][BASE]+osc-5.0f);
+            outputs[i].setVoltage(v);
         }
-
-        // reset knob values on mode change
-        //if (mode != prevMode) {
-        //    for (int i = 0; i < KNOBS; i++) {
-        //        switch (mode) {
-        //            case AMPLITUDE:
-        //                params[i].setValue(amplitude[i]);
-        //                break;
-        //            case FREQUENCY:
-        //                params[i].setValue(frequency[i]);
-        //                break;
-        //            case SHAPE:
-        //                params[i].setValue(shape[i]);
-        //                break;
-        //        }
-        //    }
-        //}
     }
 
     void processMessage(midi::Message msg) {
@@ -256,7 +242,6 @@ struct Pushy : Module {
         if (cc < 71 || cc > 78) return;
 
         int knob = cc - 71 + 1;
-        //printf("knob %d\n", knob);
 
         int8_t value = msg.bytes[2];
         value = clamp(value, 0, 127);
