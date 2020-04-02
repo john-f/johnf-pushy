@@ -25,10 +25,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2"
-     inkscape:cx="90.597782"
-     inkscape:cy="467.94758"
+     inkscape:cx="109.47403"
+     inkscape:cy="260.94508"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      showgrid="true"
      objecttolerance="10000"
      inkscape:measure-start="0,0"
@@ -63,7 +63,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -115,21 +115,21 @@
        id="rect943"
        width="10.16"
        height="10.16"
-       x="3.8100026"
-       y="239.85001"
+       x="3.809999"
+       y="244.92999"
        ry="1.2700027" />
     <rect
        ry="1.2700027"
-       y="239.85001"
-       x="16.510002"
+       y="244.92999"
+       x="16.509998"
        height="10.16"
        width="10.16"
        id="rect958"
        style="fill:#0b1004;fill-opacity:1;stroke-width:0.26458332" />
     <rect
        ry="1.2700027"
-       y="239.85001"
-       x="29.210001"
+       y="244.92999"
+       x="29.209997"
        height="10.16"
        width="10.16"
        id="rect960"
@@ -139,38 +139,33 @@
        id="rect962"
        width="10.16"
        height="10.16"
-       x="41.910004"
-       y="239.85001"
+       x="41.91"
+       y="244.92999"
        ry="1.2700027" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.24107514;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 15.240002,189.05001 V 250.01"
+       d="m 15.239998,194.13009 v 60.95999"
        id="path869"
        inkscape:connector-curvature="0" />
     <path
        sodipodi:type="inkscape:offset"
        inkscape:radius="0"
-       inkscape:original="M 27.939453 189.05078 L 27.939453 250.00977 L 27.939453 189.05078 z "
+       inkscape:original="M 27.939453 193.2832 L 27.939453 254.24414 L 27.939453 193.2832 z "
        xlink:href="#path880"
        style="fill:none;stroke:#000000;stroke-width:0.26499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path882"
-       inkscape:href="#path880"
-       d="m 27.939453,189.05078 v 60.95899 z" />
+       d="m 27.939453,193.2832 v 60.96094 z"
+       transform="translate(-3.5858149e-6,0.8467157)" />
     <path
-       inkscape:connector-curvature="0"
-       id="path880"
-       d="M 27.940009,189.05001 V 250.01"
-       style="fill:none;stroke:#000000;stroke-width:0.24107514;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    <path
-       d="m 27.939453,189.05078 v 60.95899 z"
-       inkscape:href="#path880"
+       d="m 27.939453,193.2832 v 60.96094 z"
        id="path884"
        style="fill:none;stroke:#000000;stroke-width:0.26499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        xlink:href="#path880"
-       inkscape:original="M 27.939453 189.05078 L 27.939453 250.00977 L 27.939453 189.05078 z "
+       inkscape:original="M 27.939453 193.2832 L 27.939453 254.24414 L 27.939453 193.2832 z "
        inkscape:radius="0"
        sodipodi:type="inkscape:offset"
-       transform="translate(12.7)" />
+       transform="translate(12.699996,0.8467157)"
+       inkscape:href="#path880" />
   </g>
   <g
      style="display:none;opacity:1"
@@ -180,35 +175,35 @@
      sodipodi:insensitive="true">
     <circle
        r="5.0800004"
-       cy="76.43"
-       cx="8.8900013"
+       cy="81.510002"
+       cx="8.8900003"
        id="circle4604"
        style="fill:#0000ff;fill-opacity:1;stroke-width:0.13229167"
        inkscape:label="out1" />
     <circle
        r="5.0800004"
-       cy="25.630001"
-       cx="21.590002"
+       cy="30.710003"
+       cx="21.59"
        id="circle842"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        inkscape:label="knob2" />
     <circle
        r="5.0800004"
-       cy="38.330006"
-       cx="21.590002"
+       cy="43.410004"
+       cx="21.59"
        id="circle844"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        inkscape:label="knob6" />
     <circle
        r="5.0800004"
-       cy="25.629999"
+       cy="30.709999"
        cx="34.290001"
        id="circle846"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        inkscape:label="knob3" />
     <circle
        r="5.0800004"
-       cy="38.330002"
+       cy="43.41"
        cx="34.290001"
        id="circle848"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
@@ -218,32 +213,32 @@
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        id="circle850"
        cx="46.990002"
-       cy="25.629999"
+       cy="30.709999"
        r="5.0800004" />
     <circle
        inkscape:label="knob8"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        id="circle852"
        cx="46.990002"
-       cy="38.330002"
+       cy="43.41"
        r="5.0800004" />
     <circle
        inkscape:label="out2"
        style="fill:#0000ff;fill-opacity:1;stroke-width:0.13229167"
        id="circle854"
-       cx="21.590002"
-       cy="76.43"
+       cx="21.59"
+       cy="81.510002"
        r="5.0800004" />
     <circle
        inkscape:label="out3"
        style="fill:#0000ff;fill-opacity:1;stroke-width:0.13229167"
        id="circle858"
        cx="34.290005"
-       cy="76.43"
+       cy="81.510002"
        r="5.0800004" />
     <circle
        r="5.0800004"
-       cy="76.43"
+       cy="81.510002"
        cx="46.990005"
        id="circle862"
        style="fill:#0000ff;fill-opacity:1;stroke-width:0.13229167"
@@ -252,75 +247,75 @@
        inkscape:label="knob5"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        id="circle904"
-       cx="8.8900013"
-       cy="38.330006"
+       cx="8.8900003"
+       cy="43.410004"
        r="5.0800004" />
     <circle
        inkscape:label="knob1"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        id="circle906"
-       cx="8.8900013"
-       cy="25.629999"
+       cx="8.8900003"
+       cy="30.709999"
        r="5.0800004" />
     <circle
        inkscape:label="knob10"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        id="circle853"
-       cx="21.590006"
-       cy="51.030006"
+       cx="21.590004"
+       cy="56.110004"
        r="5.0800004" />
     <circle
        inkscape:label="knob14"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        id="circle855"
-       cx="21.590006"
-       cy="63.730007"
+       cx="21.590004"
+       cy="68.810005"
        r="5.0800004" />
     <circle
        inkscape:label="knob11"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        id="circle857"
        cx="34.290005"
-       cy="51.030006"
+       cy="56.110004"
        r="5.0800004" />
     <circle
        inkscape:label="knob15"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        id="circle859"
        cx="34.290005"
-       cy="63.730007"
+       cy="68.810005"
        r="5.0800004" />
     <circle
        r="5.0800004"
-       cy="51.030006"
+       cy="56.110004"
        cx="46.990005"
        id="circle861"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        inkscape:label="knob12" />
     <circle
        r="5.0800004"
-       cy="63.730007"
+       cy="68.810005"
        cx="46.990005"
        id="circle863"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        inkscape:label="knob16" />
     <circle
        r="5.0800004"
-       cy="63.730007"
-       cx="8.8900042"
+       cy="68.810005"
+       cx="8.8900032"
        id="circle865"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        inkscape:label="knob13" />
     <circle
        r="5.0800004"
-       cy="51.030006"
-       cx="8.8900042"
+       cy="56.110004"
+       cx="8.8900032"
        id="circle867"
        style="fill:#ff0000;fill-opacity:1;stroke-width:0.13229167"
        inkscape:label="knob9" />
     <circle
        r="1.27"
-       cy="18.01"
+       cy="20.126669"
        cx="8.8900003"
        id="circle886"
        style="fill:#ff00ff;fill-opacity:0.94117647;stroke-width:0.03307291"
@@ -330,11 +325,11 @@
        style="fill:#ff00ff;fill-opacity:0.94117647;stroke-width:0.03307291"
        id="circle888"
        cx="21.59"
-       cy="18.01"
+       cy="20.126669"
        r="1.27" />
     <circle
        r="1.27"
-       cy="18.01"
+       cy="20.126669"
        cx="34.290001"
        id="circle890"
        style="fill:#ff00ff;fill-opacity:0.94117647;stroke-width:0.03307291"
@@ -344,7 +339,7 @@
        style="fill:#ff00ff;fill-opacity:0.94117647;stroke-width:0.03307291"
        id="circle892"
        cx="46.990002"
-       cy="18.01"
+       cy="20.126669"
        r="1.27" />
   </g>
 </svg>

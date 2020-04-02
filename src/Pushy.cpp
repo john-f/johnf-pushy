@@ -41,10 +41,10 @@ struct Pushy : Module {
         NUM_OUTPUTS
     };
     enum LightIds {
-        LIGHT1_LIGHT,
-        LIGHT2_LIGHT,
-        LIGHT3_LIGHT,
-        LIGHT4_LIGHT,
+        ENUMS(LIGHT1_LIGHT, 3),
+        ENUMS(LIGHT2_LIGHT, 3),
+        ENUMS(LIGHT3_LIGHT, 3),
+        ENUMS(LIGHT4_LIGHT, 3),
         NUM_LIGHTS
     };
     enum Modes {
@@ -88,6 +88,8 @@ struct Pushy : Module {
     //float amplitude[KNOBS];
     //float shape[KNOBS];
     float values[KNOBS][NUM_MODES];
+    bool fine;
+    bool locked;
     bool active[4];
 
     float stepSize[NUM_MODES];
@@ -95,6 +97,8 @@ struct Pushy : Module {
     midi::InputQueue midiInput;
 
     void onReset() override {
+        fine = false;
+        locked = false;
         stepSize[BASE] = 0.1;
         stepSize[AMPLITUDE] = 0.1;
         stepSize[FREQUENCY] = 0.05;
@@ -219,17 +223,37 @@ struct Pushy : Module {
                 break;
             }
             case 0x9: { // note on
-                uint8_t i = msg.getNote();
-                if (i < 4) {
+                uint8_t note = msg.getNote();
+                if (!locked && note < KNOBS) {
+                    int red = note * 3;
                     if (msg.getValue() == 0) {
-                        active[i] = false;
-                        lights[i].setBrightness(0.0f);
+                        active[note] = false;
+                        lights[red].setBrightness(0.0f);
                     } else {
-                        active[i] = true;
-                        lights[i].setBrightness(1.0f);
+                        active[note] = true;
+                        lights[red].setBrightness(1.0f);
                     }
-                }
+                } else if (note == 9 && msg.getValue() != 0) {
+                    bool anyActive = false;
+                    for (bool knob : active) {
+                        anyActive = anyActive || knob;
+                    }
+                    if (anyActive) {
+                        locked = !locked;
+                        for (int knob = 0; knob < KNOBS; knob++) {
+                            int red = knob * 3;
+                            int blue = knob * 3 + 2;
+                            if (active[knob]) {
+                                lights[blue].setBrightness(locked ? 1.0f : 0.0f);
+                                lights[red].setBrightness(0.0f);
+                                if (!locked) active[knob] = false;
+                            }
 
+                        }
+                    }
+                } else if (note == 10) {
+                    fine = msg.getValue() != 0;
+                }
                 break;
             }
         }
@@ -243,29 +267,37 @@ struct Pushy : Module {
 
         int knob = cc - 71 + 1;
 
-        int8_t value = msg.bytes[2];
-        value = clamp(value, 0, 127);
+        float value = msg.bytes[2];
+        value = clamp(value, 0.0f, 127.0f);
 
         if (knob <= 4) {
-            float v = params[knob-1].getValue();
+            float v = params[knob - 1].getValue();
             // account for knob acceleration
-            v += value <= uint8_t(63) ? value * stepSize[BASE] : (128 - value) * -stepSize[BASE];
+            if (value <= 63.0f) {
+                v += value * stepSize[BASE] * (fine ? 0.1f : 1.0f);
+            } else {
+                v += (128.0f - value) * -stepSize[BASE] * (fine ? 0.1f : 1.0f);
+            }
             v = clamp(v, 0.f, 10.f);
-            params[knob-1].setValue(v);
+            params[knob - 1].setValue(v);
         }
         if (knob > 4) {
             float v;
             // knobs: 5 = base, 6 = amplitude, 7 = frequency, 8 = shape
             // modes: 0 = base, 1 = amplitude, 2 = frequency, 3 = shape
             int mode = knob - 5;
-            printf("knob %d, mode %d\n", knob, mode);
-            for (int i = 0; i<KNOBS; i++) {
+            //printf("knob %d, mode %d\n", knob, mode);
+            for (int i = 0; i < KNOBS; i++) {
                 if (active[i]) {
                     int n = i + (4 * mode);
-                    printf("setting param %d\n", n);
+                    //printf("setting param %d\n", n);
                     v = params[n].getValue();
                     // account for knob acceleration
-                    v += value <= uint8_t(63) ? value * stepSize[mode] : (128 - value) * -stepSize[mode];
+                    if (value <= 63.0f) {
+                        v += value * stepSize[mode] * (fine ? 0.1f : 1.0f);
+                    } else {
+                        v += (128.0f - value) * -stepSize[mode] * (fine ? 0.1f : 1.0f);
+                    }
                     v = clamp(v, 0.f, 10.f);
                     params[n].setValue(v);
                 }
@@ -322,37 +354,37 @@ struct PushyWidget : ModuleWidget {
         addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
         addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(8.89, 25.63)), module, Pushy::KNOB1_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(21.59, 25.63)), module, Pushy::KNOB2_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(34.29, 25.63)), module, Pushy::KNOB3_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(46.99, 25.63)), module, Pushy::KNOB4_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(8.89, 38.33)), module, Pushy::KNOB5_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(21.59, 38.33)), module, Pushy::KNOB6_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(34.29, 38.33)), module, Pushy::KNOB7_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(46.99, 38.33)), module, Pushy::KNOB8_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(8.89, 51.03)), module, Pushy::KNOB9_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(21.59, 51.03)), module, Pushy::KNOB10_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(34.29, 51.03)), module, Pushy::KNOB11_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(46.99, 51.03)), module, Pushy::KNOB12_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(8.89, 63.73)), module, Pushy::KNOB13_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(21.59, 63.73)), module, Pushy::KNOB14_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(34.29, 63.73)), module, Pushy::KNOB15_PARAM));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(46.99, 63.73)), module, Pushy::KNOB16_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(8.89, 30.71)), module, Pushy::KNOB1_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(21.59, 30.71)), module, Pushy::KNOB2_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(34.29, 30.71)), module, Pushy::KNOB3_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(46.99, 30.71)), module, Pushy::KNOB4_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(8.89, 43.41)), module, Pushy::KNOB5_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(21.59, 43.41)), module, Pushy::KNOB6_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(34.29, 43.41)), module, Pushy::KNOB7_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(46.99, 43.41)), module, Pushy::KNOB8_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(8.89, 56.11)), module, Pushy::KNOB9_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(21.59, 56.11)), module, Pushy::KNOB10_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(34.29, 56.11)), module, Pushy::KNOB11_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(46.99, 56.11)), module, Pushy::KNOB12_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(8.89, 68.81)), module, Pushy::KNOB13_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(21.59, 68.81)), module, Pushy::KNOB14_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(34.29, 68.81)), module, Pushy::KNOB15_PARAM));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(46.99, 68.81)), module, Pushy::KNOB16_PARAM));
 
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(8.89, 76.43)), module, Pushy::OUT1_OUTPUT));
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(21.59, 76.43)), module, Pushy::OUT2_OUTPUT));
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(34.29, 76.43)), module, Pushy::OUT3_OUTPUT));
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(46.99, 76.43)), module, Pushy::OUT4_OUTPUT));
+        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(8.89, 81.51)), module, Pushy::OUT1_OUTPUT));
+        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(21.59, 81.51)), module, Pushy::OUT2_OUTPUT));
+        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(34.29, 81.51)), module, Pushy::OUT3_OUTPUT));
+        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(46.99, 81.51)), module, Pushy::OUT4_OUTPUT));
 
-        addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(8.89, 18.01)), module, Pushy::LIGHT1_LIGHT));
-        addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(21.59, 18.01)), module, Pushy::LIGHT2_LIGHT));
-        addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(34.29, 18.01)), module, Pushy::LIGHT3_LIGHT));
-        addChild(createLightCentered<MediumLight<RedLight>>(mm2px(Vec(46.99, 18.01)), module, Pushy::LIGHT4_LIGHT));
+        addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(mm2px(Vec(8.89, 20.127)), module, Pushy::LIGHT1_LIGHT));
+        addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(mm2px(Vec(21.59, 20.127)), module, Pushy::LIGHT2_LIGHT));
+        addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(mm2px(Vec(34.29, 20.127)), module, Pushy::LIGHT3_LIGHT));
+        addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(mm2px(Vec(46.99, 20.127)), module, Pushy::LIGHT4_LIGHT));
 
         PushyMidiWidget *midiWidget = createWidget<PushyMidiWidget>(mm2px(Vec(3.41891, 128.5 - 28 - 2.54)));
         midiWidget->box.size = mm2px(Vec(49.08, 22.92));
 
-        midiWidget->setMidiPort(module ? &module->midiInput : NULL);
+        midiWidget->setMidiPort(module ? &module->midiInput : nullptr);
         addChild(midiWidget);
     }
 };
