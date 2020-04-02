@@ -96,6 +96,7 @@ struct Pushy : Module {
     }
 
     float phase[KNOBS];
+    float oldValues[KNOBS][NUM_MODES];
     float realValues[KNOBS][NUM_MODES];
     float slewValues[KNOBS][NUM_MODES];
     bool fine;
@@ -128,6 +129,17 @@ struct Pushy : Module {
         // loop through all midi messages
         while (midiInput.shift(&msg)) {
             processMessage(msg);
+        }
+        // check knobs for changes
+        for (int i = 0; i < KNOBS; i++) {
+            for (int mode = 0; mode < NUM_MODES; mode++) {
+                int n = i + (4 * mode);
+                float v = params[n].getValue();
+                if (v != oldValues[i][mode]) {
+                    setRealValue(i, mode, v);
+                }
+                oldValues[i][mode] = params[n].getValue();
+            }
         }
 
         for (int i = 0; i < KNOBS; i++) {
@@ -267,58 +279,56 @@ struct Pushy : Module {
 
         int knob = cc - 71 + 1;
 
-        float value = msg.bytes[2];
-        value = clamp(value, 0.0f, 127.0f);
+        float ccValue = msg.bytes[2];
+        ccValue = clamp(ccValue, 0.0f, 127.0f);
 
         if (knob <= 4) {
             int i = knob - 1;
-            float v = params[i].getValue();
-            // account for knob acceleration
-            if (value <= 63.0f) {
-                v += value * STEP_SIZE[BASE] * (fine ? 0.1f : 1.0f);
-            } else {
-                v += (128.0f - value) * -STEP_SIZE[BASE] * (fine ? 0.1f : 1.0f);
-            }
-            v = clamp(v, 0.f, 10.f);
-            params[i].setValue(v);
-            realValues[i][BASE] = v;
+            handleKnobTurn(i, BASE, ccValue);
         }
         if (knob > 4) {
-            float v;
             // knobs: 5 = base, 6 = amplitude, 7 = frequency, 8 = shape
             // modes: 0 = base, 1 = amplitude, 2 = frequency, 3 = shape
             int mode = knob - 5;
             for (int i = 0; i < KNOBS; i++) {
                 if (active[i]) {
-                    int n = i + (4 * mode);
-                    v = params[n].getValue();
-                    // account for knob acceleration
-                    if (value <= 63.0f) {
-                        v += value * STEP_SIZE[mode] * (fine ? 0.1f : 1.0f);
-                    } else {
-                        v += (128.0f - value) * -STEP_SIZE[mode] * (fine ? 0.1f : 1.0f);
-                    }
-                    v = clamp(v, 0.f, 10.f);
-                    params[n].setValue(v);
-                    if (mode == FREQUENCY) {
-                        float freq = powf(1.4f, v) - 1;
-                        realValues[i][FREQUENCY] = freq;
-                    } else if (mode == AMPLITUDE) {
-                        // attenuverter
-                        float a;
-                        if (v < 5) {
-                            a = -(powf(1.27098f, 2 * (5 - v)) - 1);
-                        } else {
-                            a = powf(1.27098f, 2 * (v - 5)) - 1;
-                        }
-                        realValues[i][AMPLITUDE] = a;
-                    } else {
-                        realValues[i][mode] = v;
-                    }
+                    handleKnobTurn(i, mode, ccValue);
                 }
             }
         }
+    }
 
+    void handleKnobTurn(int i, int mode, float ccValue) {
+        int n = i + (4 * mode);
+        float v = params[n].getValue();
+        // account for knob acceleration
+        if (ccValue <= 63.0f) {
+            v += ccValue * STEP_SIZE[mode] * (fine ? 0.1f : 1.0f);
+        } else {
+            v += (128.0f - ccValue) * -STEP_SIZE[mode] * (fine ? 0.1f : 1.0f);
+        }
+        v = clamp(v, 0.f, 10.f);
+        params[n].setValue(v);
+        oldValues[i][mode] = v;
+        setRealValue(i, mode, v);
+    }
+
+    void setRealValue(int i, int mode, float v) {
+        if (mode == BASE || mode == SHAPE) {
+            realValues[i][mode] = v;
+        } else if (mode == FREQUENCY) {
+            float freq = powf(1.4f, v) - 1;
+            realValues[i][FREQUENCY] = freq;
+        } else if (mode == AMPLITUDE) {
+            // attenuverter
+            float a;
+            if (v < 5) {
+                a = -(powf(1.27098f, 2 * (5 - v)) - 1);
+            } else {
+                a = powf(1.27098f, 2 * (v - 5)) - 1;
+            }
+            realValues[i][AMPLITUDE] = a;
+        }
     }
 
     json_t *dataToJson() override {
