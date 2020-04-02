@@ -55,39 +55,49 @@ struct Pushy : Module {
         NUM_MODES
     };
 
+    const float DEFAULTS[NUM_MODES] = {
+            5, // base
+            5, // amp
+            2, // freq
+            4  // shape
+    };
+    const float STEP_SIZE[NUM_MODES] = {
+            0.1,  // base
+            0.1,  // amp
+            0.05, // freq
+            0.05  // shape
+    };
+
     dsp::ExponentialSlewLimiter slewLimiter[KNOBS][NUM_MODES];
 
     Pushy() {
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
         // base
-        configParam(KNOB1_PARAM, 0.f, 10.f, 5.f, "");
-        configParam(KNOB2_PARAM, 0.f, 10.f, 5.f, "");
-        configParam(KNOB3_PARAM, 0.f, 10.f, 5.f, "");
-        configParam(KNOB4_PARAM, 0.f, 10.f, 5.f, "");
+        configParam(KNOB1_PARAM, 0.f, 10.f, DEFAULTS[BASE], "");
+        configParam(KNOB2_PARAM, 0.f, 10.f, DEFAULTS[BASE], "");
+        configParam(KNOB3_PARAM, 0.f, 10.f, DEFAULTS[BASE], "");
+        configParam(KNOB4_PARAM, 0.f, 10.f, DEFAULTS[BASE], "");
         // amp
-        configParam(KNOB5_PARAM, 0.f, 10.f, 5.f, "");
-        configParam(KNOB6_PARAM, 0.f, 10.f, 5.f, "");
-        configParam(KNOB7_PARAM, 0.f, 10.f, 5.f, "");
-        configParam(KNOB8_PARAM, 0.f, 10.f, 5.f, "");
+        configParam(KNOB5_PARAM, 0.f, 10.f, DEFAULTS[AMPLITUDE], "");
+        configParam(KNOB6_PARAM, 0.f, 10.f, DEFAULTS[AMPLITUDE], "");
+        configParam(KNOB7_PARAM, 0.f, 10.f, DEFAULTS[AMPLITUDE], "");
+        configParam(KNOB8_PARAM, 0.f, 10.f, DEFAULTS[AMPLITUDE], "");
         // freq
-        configParam(KNOB9_PARAM, 0.f, 10.f, 2.f, "");
-        configParam(KNOB10_PARAM, 0.f, 10.f, 2.f, "");
-        configParam(KNOB11_PARAM, 0.f, 10.f, 2.f, "");
-        configParam(KNOB12_PARAM, 0.f, 10.f, 2.f, "");
+        configParam(KNOB9_PARAM, 0.f, 10.f, DEFAULTS[FREQUENCY], "");
+        configParam(KNOB10_PARAM, 0.f, 10.f, DEFAULTS[FREQUENCY], "");
+        configParam(KNOB11_PARAM, 0.f, 10.f, DEFAULTS[FREQUENCY], "");
+        configParam(KNOB12_PARAM, 0.f, 10.f, DEFAULTS[FREQUENCY], "");
         // shape
-        configParam(KNOB13_PARAM, 0.f, 10.f, 4.f, "");
-        configParam(KNOB14_PARAM, 0.f, 10.f, 4.f, "");
-        configParam(KNOB15_PARAM, 0.f, 10.f, 4.f, "");
-        configParam(KNOB16_PARAM, 0.f, 10.f, 4.f, "");
+        configParam(KNOB13_PARAM, 0.f, 10.f, DEFAULTS[SHAPE], "");
+        configParam(KNOB14_PARAM, 0.f, 10.f, DEFAULTS[SHAPE], "");
+        configParam(KNOB15_PARAM, 0.f, 10.f, DEFAULTS[SHAPE], "");
+        configParam(KNOB16_PARAM, 0.f, 10.f, DEFAULTS[SHAPE], "");
         onReset();
     }
 
-    int ccs[128];
     float phase[KNOBS];
-    //float frequency[KNOBS];
-    //float amplitude[KNOBS];
-    //float shape[KNOBS];
-    float values[KNOBS][NUM_MODES];
+    float realValues[KNOBS][NUM_MODES];
+    float slewValues[KNOBS][NUM_MODES];
     bool fine;
     bool locked;
     bool active[4];
@@ -99,17 +109,14 @@ struct Pushy : Module {
     void onReset() override {
         fine = false;
         locked = false;
-        stepSize[BASE] = 0.1;
-        stepSize[AMPLITUDE] = 0.1;
-        stepSize[FREQUENCY] = 0.05;
-        stepSize[SHAPE] = 0.05;
 
         for (int i = 0; i < KNOBS; i++) {
             active[i] = false;
             phase[i] = 0;
             for (int mode = 0; mode < NUM_MODES; mode++) {
-                values[i][mode] = 0;
-                slewLimiter[i][mode].setRiseFall(1000, 1000);
+                realValues[i][mode] = DEFAULTS[mode];
+                slewValues[i][mode] = DEFAULTS[mode];
+                slewLimiter[i][mode].setRiseFall(100, 100);
             }
         }
 
@@ -126,12 +133,11 @@ struct Pushy : Module {
         for (int i = 0; i < KNOBS; i++) {
             // do knobs -> values slew
             for (int mode = 0; mode < NUM_MODES; mode++) {
-                int n = i + (4 * mode);
-                values[i][mode] = slewLimiter[i][mode].process(args.sampleTime, params[n].getValue());
+                slewValues[i][mode] = slewLimiter[i][mode].process(args.sampleTime, realValues[i][mode]);
             }
 
             // do oscillations
-            float freq = powf(1.36f, values[i][FREQUENCY]) - 1;
+            float freq = slewValues[i][FREQUENCY];
 
             // accumulate the phase
             phase[i] += freq * args.sampleTime;
@@ -142,14 +148,12 @@ struct Pushy : Module {
             float x = 2 - phase[i];
 
             // todo: store when knob is turned
-            int algo = int(values[i][SHAPE] / 2);
-            float mix = fmod(values[i][SHAPE] / 2, 1);
+            int algo = int(slewValues[i][SHAPE] / 2);
+            float mix = fmod(slewValues[i][SHAPE] / 2, 1);
             float invertMix = 1;
             float algo1 = 0;
             float algo2 = 0;
             float n = 0;
-
-            //if (i == 0) printf("algo %d, ratio %f, mode %d\n", algo, mix, mode);
 
             switch (algo) {
                 case 0:
@@ -199,17 +203,11 @@ struct Pushy : Module {
             }
             float y = invertMix * algo1 + mix * algo2;
 
-            // todo: store when knob is turned, don't recalculate
-            float amp;
-            // attenuverter
-            if (values[i][AMPLITUDE] < 5) {
-                amp = -(powf(1.27098f, 2 * (5 - values[i][AMPLITUDE])) - 1);
-            } else {
-                amp = powf(1.27098f, 2 * (values[i][AMPLITUDE] - 5)) - 1;
-            }
+            float amp = slewValues[i][AMPLITUDE];
+
             // output 0-10v, centered on +5v
             float osc = 5 + y * amp / 2;
-            float v = values[i][BASE] + osc - 5;
+            float v = slewValues[i][BASE] + osc - 5;
             v = clamp(v, 0.0f, 10.0f);
 
             outputs[i].setVoltage(v);
@@ -240,15 +238,17 @@ struct Pushy : Module {
                     }
                     if (anyActive) {
                         locked = !locked;
-                        for (int knob = 0; knob < KNOBS; knob++) {
-                            int red = knob * 3;
-                            int blue = knob * 3 + 2;
-                            if (active[knob]) {
+                        for (int i = 0; i < KNOBS; i++) {
+                            if (active[i]) {
+                                int red = i * 3;
+                                int blue = i * 3 + 2;
                                 lights[blue].setBrightness(locked ? 1.0f : 0.0f);
-                                lights[red].setBrightness(0.0f);
-                                if (!locked) active[knob] = false;
-                            }
+                                lights[red].setBrightness(locked ? 0.0f : 1.0f);
 
+                                // reset
+                                // lights[red].setBrightness(0.0f);
+                                //if (!locked) active[i] = false;
+                            }
                         }
                     }
                 } else if (note == 10) {
@@ -271,35 +271,50 @@ struct Pushy : Module {
         value = clamp(value, 0.0f, 127.0f);
 
         if (knob <= 4) {
-            float v = params[knob - 1].getValue();
+            int i = knob - 1;
+            float v = params[i].getValue();
             // account for knob acceleration
             if (value <= 63.0f) {
-                v += value * stepSize[BASE] * (fine ? 0.1f : 1.0f);
+                v += value * STEP_SIZE[BASE] * (fine ? 0.1f : 1.0f);
             } else {
-                v += (128.0f - value) * -stepSize[BASE] * (fine ? 0.1f : 1.0f);
+                v += (128.0f - value) * -STEP_SIZE[BASE] * (fine ? 0.1f : 1.0f);
             }
             v = clamp(v, 0.f, 10.f);
-            params[knob - 1].setValue(v);
+            params[i].setValue(v);
+            realValues[i][BASE] = v;
         }
         if (knob > 4) {
             float v;
             // knobs: 5 = base, 6 = amplitude, 7 = frequency, 8 = shape
             // modes: 0 = base, 1 = amplitude, 2 = frequency, 3 = shape
             int mode = knob - 5;
-            //printf("knob %d, mode %d\n", knob, mode);
             for (int i = 0; i < KNOBS; i++) {
                 if (active[i]) {
                     int n = i + (4 * mode);
-                    //printf("setting param %d\n", n);
                     v = params[n].getValue();
                     // account for knob acceleration
                     if (value <= 63.0f) {
-                        v += value * stepSize[mode] * (fine ? 0.1f : 1.0f);
+                        v += value * STEP_SIZE[mode] * (fine ? 0.1f : 1.0f);
                     } else {
-                        v += (128.0f - value) * -stepSize[mode] * (fine ? 0.1f : 1.0f);
+                        v += (128.0f - value) * -STEP_SIZE[mode] * (fine ? 0.1f : 1.0f);
                     }
                     v = clamp(v, 0.f, 10.f);
                     params[n].setValue(v);
+                    if (mode == FREQUENCY) {
+                        float freq = powf(1.4f, v) - 1;
+                        realValues[i][FREQUENCY] = freq;
+                    } else if (mode == AMPLITUDE) {
+                        // attenuverter
+                        float a;
+                        if (v < 5) {
+                            a = -(powf(1.27098f, 2 * (5 - v)) - 1);
+                        } else {
+                            a = powf(1.27098f, 2 * (v - 5)) - 1;
+                        }
+                        realValues[i][AMPLITUDE] = a;
+                    } else {
+                        realValues[i][mode] = v;
+                    }
                 }
             }
         }
@@ -309,12 +324,40 @@ struct Pushy : Module {
     json_t *dataToJson() override {
         json_t *rootJ = json_object();
         json_object_set_new(rootJ, "midi", midiInput.toJson());
+
+        json_object_set_new(rootJ, "locked", json_boolean(locked));
+
+        json_t* activeJ = json_array();
+        for (int i = 0; i < KNOBS; i++) {
+            json_array_append_new(activeJ, json_boolean(locked && active[i]));
+        }
+        json_object_set_new(rootJ, "active", activeJ);
+
+        json_object_set_new(rootJ, "midi", midiInput.toJson());
+
         return rootJ;
     }
 
     void dataFromJson(json_t *rootJ) override {
         json_t *midiJ = json_object_get(rootJ, "midi");
         if (midiJ) midiInput.fromJson(midiJ);
+
+        locked = json_boolean_value(json_object_get(rootJ, "locked"));
+        if (locked) {
+            json_t *activeJ = json_object_get(rootJ, "active");
+            if (activeJ) {
+                for (int i = 0; i < KNOBS; i++) {
+                    json_t *iJ = json_array_get(activeJ, i);
+                    if (iJ) {
+                        active[i] = json_boolean_value(iJ);
+                        if (active[i]) {
+                            int blue = i * 3 + 2;
+                            lights[blue].setBrightness(1.0f);
+                        }
+                    }
+                }
+            }
+        }
     }
 
 };
@@ -376,10 +419,14 @@ struct PushyWidget : ModuleWidget {
         addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(34.29, 81.51)), module, Pushy::OUT3_OUTPUT));
         addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(46.99, 81.51)), module, Pushy::OUT4_OUTPUT));
 
-        addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(mm2px(Vec(8.89, 20.127)), module, Pushy::LIGHT1_LIGHT));
-        addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(mm2px(Vec(21.59, 20.127)), module, Pushy::LIGHT2_LIGHT));
-        addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(mm2px(Vec(34.29, 20.127)), module, Pushy::LIGHT3_LIGHT));
-        addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(mm2px(Vec(46.99, 20.127)), module, Pushy::LIGHT4_LIGHT));
+        addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(mm2px(Vec(8.89, 20.127)), module,
+                                                                     Pushy::LIGHT1_LIGHT));
+        addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(mm2px(Vec(21.59, 20.127)), module,
+                                                                     Pushy::LIGHT2_LIGHT));
+        addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(mm2px(Vec(34.29, 20.127)), module,
+                                                                     Pushy::LIGHT3_LIGHT));
+        addChild(createLightCentered<MediumLight<RedGreenBlueLight>>(mm2px(Vec(46.99, 20.127)), module,
+                                                                     Pushy::LIGHT4_LIGHT));
 
         PushyMidiWidget *midiWidget = createWidget<PushyMidiWidget>(mm2px(Vec(3.41891, 128.5 - 28 - 2.54)));
         midiWidget->box.size = mm2px(Vec(49.08, 22.92));
